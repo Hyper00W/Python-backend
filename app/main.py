@@ -59,12 +59,16 @@ def get_posts(db: Session = Depends(get_db)):
     return {"data" : posts}
 
 @app.post("/createpost", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post):
+def create_post(post: Post, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""",
     #                (post.title, post.content, post.published))
     # new_post = cursor.fetchone()
     # conn.commit()
-    new_post = models.Post(title=post.title, content = post.content , published = post.published)
+    new_post = models.Post(**Post.dict()) #Post.dict convertes the data and converts to the column Automatically using the ** operators
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+
     return {"data " :new_post}
 
 @app.get("/posts/latest")
@@ -73,9 +77,11 @@ def latest_post():
     return {"detals": post}
 
 @app.get("/posts/{id}")
-def get_post(id: int, response: Response):
-    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
-    post = cursor.fetchone()
+def get_post(id: int, db: Session = Depends(get_db)):
+    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
+    # post = cursor.fetchone()
+    post = db.query(models.Post).filter(models.Post.id == id).first()
+    print(post)
     if not post:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, 
                             detail = f"post with id: {id} not found")
