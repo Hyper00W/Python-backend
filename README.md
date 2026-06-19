@@ -19,7 +19,7 @@
 
 **A hands-on learning project to master REST API development with FastAPI and PostgreSQL**
 
-⭐ Perfect for developers starting their backend development journey
+⭐ Perfect for developers starting their backend development journey....
 
 </div>
 
